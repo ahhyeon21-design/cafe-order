@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>카페 발주목록</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+:root{
+  --bg:#f3f5f2; --surface:#ffffff; --line:#dfe4dd; --fg:#1d231f; --muted:#66706a;
+  --salad:#2f7d4a; --salad-soft:#e3f1e7; --cafe:#7a4b2a; --cafe-soft:#f2e8df;
+  --warn:#b4432f; --accent:var(--salad); --accent-soft:var(--salad-soft);
+  --f-head:"IBM Plex Sans KR","Noto Sans KR",system-ui,sans-serif;
+  --f-body:"Noto Sans KR",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#141815; --surface:#1d221e; --line:#2f3731; --fg:#e8ece8; --muted:#9aa49d;
+  --salad:#6cc58a; --salad-soft:#1f3326; --cafe:#d3a27c; --cafe-soft:#35281f; --warn:#ef8a74; color-scheme:dark}}
+body.cafe{--accent:var(--cafe); --accent-soft:var(--cafe-soft)}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:16px;line-height:1.5}
+.wrap{max-width:640px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{position:sticky;top:0;z-index:5;background:var(--surface);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+header .wrap{padding-block:14px 12px;display:grid;gap:12px}
+h1{font-family:var(--f-head);font-size:20px;margin:0}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--bg);padding:4px;border-radius:10px}
+.tab{font:inherit;font-family:var(--f-head);font-weight:700;border:0;border-radius:8px;padding:11px;background:transparent;color:var(--muted);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--surface);color:var(--accent);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.tab .n{display:inline-block;min-width:20px;margin-left:6px;padding:0 6px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-family:var(--f-body);font-size:12px;font-variant-numeric:tabular-nums}
+.tab .n:empty{display:none}
+button{font:inherit;cursor:pointer}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:10px;padding:9px 14px;font-size:15px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--surface);font-weight:700}
+.btn.big{width:100%;padding:14px;font-size:16px}
+.btn.danger{color:var(--warn);border-color:var(--warn)}
+.link{border:0;background:none;color:var(--muted);text-decoration:underline;font-size:13px;padding:4px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+main .wrap{padding-block:16px calc(48px + env(safe-area-inset-bottom,0px));display:grid;gap:22px}
+.addbox{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:12px}
+.addbox label,.addbox .lab{display:grid;gap:4px;font-size:13px;color:var(--muted)}
+.addbox input[type="text"],.addbox input[type="number"]{font:inherit;padding:11px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);min-width:0;width:100%}
+.lead{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:999px;padding:8px 14px;font-size:14px}
+.chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:700}
+.custom{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--fg)}
+.custom input{max-width:90px}
+.addbox .acts{display:flex;gap:8px}
+.addbox .acts .btn{flex:1}
+section h2{font-family:var(--f-head);font-size:15px;margin:0;display:flex;align-items:center;gap:8px}
+section h2 .cnt{font-family:var(--f-body);font-size:13px;color:var(--muted);font-weight:400;font-variant-numeric:tabular-nums}
+section h2 .sp{flex:1}
+.hint{font-size:13px;color:var(--muted);margin:2px 0 8px}
+.list{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.row{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:12px 14px;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.chk{width:26px;height:26px;accent-color:var(--accent);cursor:pointer;margin:0}
+.info{min-width:0}
+.name{font-weight:500;overflow-wrap:anywhere}
+.memo{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.tag{display:inline-block;font-size:12px;padding:1px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent);margin-right:6px;white-space:nowrap}
+.tag.late{background:transparent;border:1px solid var(--warn);color:var(--warn)}
+.arrived .name{text-decoration:line-through;color:var(--muted)}
+.acts2{display:flex;flex-direction:column;align-items:flex-end}
+.editor{grid-column:1/-1;display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.editor .chip{padding:6px 14px}
+.editor input{font:inherit;width:64px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)}
+.editor .btn{padding:6px 12px;font-size:14px}
+.empty{padding:18px 14px;color:var(--muted);font-size:14px}
+.confirm{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:14px;margin-bottom:8px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;z-index:20;max-width:90%}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>카페 발주목록</h1>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" data-part="salad">샐러드 파트<span class="n" id="n-salad"></span></button>
+      <button class="tab" role="tab" aria-selected="false" data-part="cafe">카페 파트<span class="n" id="n-cafe"></span></button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div>
+      <button class="btn primary big" id="openAdd">+ 품목 추가</button>
+      <form class="addbox" id="addForm" hidden>
+        <label>품목명<input type="text" id="f-name" placeholder="예: 로메인" required maxlength="100" autocomplete="off"></label>
+        <label>수량·메모 (안 적어도 됩니다)<input type="text" id="f-memo" placeholder="예: 2박스" maxlength="200" autocomplete="off"></label>
+        <div class="lab">배송 기간
+          <div class="lead" id="lead">
+            <button type="button" class="chip" aria-pressed="true" data-d="1">1일</button>
+            <button type="button" class="chip" aria-pressed="false" data-d="2">2일</button>
+            <button type="button" class="chip" aria-pressed="false" data-d="3">3일</button>
+            <button type="button" class="chip" aria-pressed="false" data-d="custom">직접 입력</button>
+          </div>
+          <div class="custom" id="customBox" hidden><input type="number" id="f-days" min="0" max="60" inputmode="numeric" placeholder="5" aria-label="배송 일수">일 후 도착</div>
+        </div>
+        <div class="acts"><button class="btn primary" type="submit" id="addBtn">추가</button><button class="btn" type="button" id="closeAdd">닫기</button></div>
+      </form>
+    </div>
+
+    <section>
+      <h2>주문 필요 <span class="cnt" id="todoCnt"></span></h2>
+      <p class="hint">주문했으면 체크하세요.</p>
+      <div class="list" id="todo"><div class="empty" id="status">목록을 불러오는 중…</div></div>
+    </section>
+
+    <section>
+      <h2>주문 완료 · 배송 대기 <span class="cnt" id="waitCnt"></span></h2>
+      <p class="hint">물건이 와서 정리까지 끝났으면 체크하세요.</p>
+      <div class="list" id="wait"><div class="empty">주문한 품목이 여기로 옮겨집니다.</div></div>
+    </section>
+
+    <section>
+      <h2>배송·정리 완료 <span class="cnt" id="doneCnt"></span><span class="sp"></span><button class="link" id="clearBtn" hidden>완료 목록 비우기</button></h2>
+      <p class="hint">체크를 풀면 배송 대기로 되돌아갑니다.</p>
+      <div class="confirm" id="clearConfirm" hidden><span>이 파트의 배송·정리 완료 목록을 모두 지울까요?</span><button class="btn danger" id="clearYes">지우기</button><button class="btn" id="clearNo">취소</button></div>
+      <div class="list" id="done"><div class="empty">정리까지 끝난 품목이 여기에 남습니다.</div></div>
+    </section>
+  </div>
+</main>
+<div class="toast" id="toast" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+(function(){
+  const SUPABASE_URL='https://ezcwzpbkvhivqzycncll.supabase.co';
+  const SUPABASE_KEY='sb_publishable_m1UBoZJeiv2EFhZTdy_kvQ_WkGbVe65';
+  const $=id=>document.getElementById(id);
+  const DAY=86400000;
+  let part='salad', items=[], loaded=false, lead='1', sb=null;
+  try{const p=localStorage.getItem('part');if(p==='cafe'||p==='salad')part=p;}catch(e){}
+
+  function toast(msg){const t=$('toast');t.textContent=msg;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>t.hidden=true,2200);}
+  function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+  const md=ts=>{const d=new Date(ts);return `${d.getMonth()+1}/${d.getDate()}(${'일월화수목금토'[d.getDay()]})`;};
+  const dayStart=ts=>{const d=new Date(ts);d.setHours(0,0,0,0);return d.getTime();};
+  const hasLead=it=>typeof it.leadDays==='number';
+  const leadLabel=it=>hasLead(it)?(it.leadDays===0?'당일 배송':`배송 ${it.leadDays}일`):'';
+  const T=s=>s?Date.parse(s):0;
+  const map=r=>({id:r.id,part:r.part,name:r.name,memo:r.memo,leadDays:r.lead_days,done:r.done,doneAt:T(r.done_at),arrived:r.arrived,arrivedAt:T(r.arrived_at),createdAt:T(r.created_at)});
+
+  function setPart(p){
+    part=p;try{localStorage.setItem('part',p)}catch(e){}
+    document.body.classList.toggle('cafe',p==='cafe');
+    document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.part===p));
+    $('clearConfirm').hidden=true;
+    render();
+  }
+  document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>setPart(b.dataset.part));
+
+  function render(){
+    ['salad','cafe'].forEach(p=>{const n=items.filter(i=>i.part===p&&!i.done).length;$('n-'+p).textContent=n||'';});
+    if(!loaded)return;
+    const mine=items.filter(i=>i.part===part);
+    const todo=mine.filter(i=>!i.done).sort((a,b)=>a.createdAt-b.createdAt);
+    const eta=i=>hasLead(i)&&i.doneAt?dayStart(i.doneAt)+i.leadDays*DAY:Infinity;
+    const wait=mine.filter(i=>i.done&&!i.arrived).sort((a,b)=>eta(a)-eta(b)||a.doneAt-b.doneAt);
+    const done=mine.filter(i=>i.done&&i.arrived).sort((a,b)=>b.arrivedAt-a.arrivedAt);
+    $('todoCnt').textContent=todo.length?todo.length+'개':'';
+    $('waitCnt').textContent=wait.length?wait.length+'개':'';
+    $('doneCnt').textContent=done.length?done.length+'개':'';
+    $('clearBtn').hidden=!done.length;
+    fill($('todo'),todo,'todo','주문할 품목이 없어요. 위의 "품목 추가"를 눌러 넣어주세요.');
+    fill($('wait'),wait,'wait','주문한 품목이 여기로 옮겨집니다.');
+    fill($('done'),done,'done','정리까지 끝난 품목이 여기에 남습니다.');
+  }
+
+  function subHtml(it,stage){
+    const parts=[];
+    if(stage==='todo'){
+      if(hasLead(it))parts.push(`<span class="tag">${leadLabel(it)}</span>`);
+      if(it.memo)parts.push(esc(it.memo));
+    }else if(stage==='wait'){
+      if(hasLead(it)&&it.doneAt){
+        const e=dayStart(it.doneAt)+it.leadDays*DAY, late=dayStart(Date.now())>e;
+        parts.push(`<span class="tag${late?' late':''}">${late?'도착 예정 지남 ':'도착 예정 '}${md(e)}</span>`);
+      }
+      const t=[it.memo, it.doneAt?md(it.doneAt)+' 주문':'', leadLabel(it)].filter(Boolean).join(' · ');
+      if(t)parts.push(esc(t));
+    }else{
+      const t=[it.memo, it.arrivedAt?md(it.arrivedAt)+' 정리 완료':''].filter(Boolean).join(' · ');
+      if(t)parts.push(esc(t));
+    }
+    return parts.length?`<div class="memo">${parts.join('')}</div>`:'';
+  }
+
+  function fill(box,list,stage,emptyMsg){
+    box.innerHTML='';
+    if(!list.length){box.innerHTML=`<div class="empty">${emptyMsg}</div>`;return;}
+    list.forEach(it=>{
+      const r=document.createElement('div');r.className='row'+(stage==='done'?' arrived':'');
+      const label={todo:'주문 완료',wait:'배송·정리 완료',done:'배송·정리 완료'}[stage];
+      r.innerHTML=`<input type="checkbox" class="chk" aria-label="${esc(it.name)} ${label}" ${stage==='done'?'checked':''}>
+        <div class="info"><div class="name">${esc(it.name)}</div>${subHtml(it,stage)}</div>
+        <div class="acts2">${stage!=='done'?'<button class="link" type="button" data-lead>배송기간 수정</button>':''}${stage==='wait'?'<button class="link" type="button" data-back>주문 취소</button>':''}<button class="link" type="button" data-del>삭제</button></div>`;
+      const le=r.querySelector('[data-lead]');
+      if(le)le.onclick=()=>{
+        const old=r.querySelector('.editor');if(old){old.remove();return;}
+        const ed=document.createElement('div');ed.className='editor';
+        ed.innerHTML='<span>배송 기간</span>'+[1,2,3].map(n=>`<button type="button" class="chip" aria-pressed="${it.leadDays===n}" data-n="${n}">${n}일</button>`).join('')
+          +`<input type="number" min="0" max="60" inputmode="numeric" placeholder="직접" aria-label="배송 일수 직접 입력" value="${hasLead(it)&&![1,2,3].includes(it.leadDays)?it.leadDays:''}"><span>일</span><button type="button" class="btn" data-ok>확인</button>`;
+        const apply=n=>{
+          if(n===it.leadDays){ed.remove();return;}
+          save(it,{lead_days:n},`"${it.name}" 배송 기간을 ${n}일로 바꿨어요`);
+        };
+        ed.querySelectorAll('.chip').forEach(c=>c.onclick=()=>apply(+c.dataset.n));
+        const inp=ed.querySelector('input');
+        const ok=()=>{const n=parseInt(inp.value,10);if(isNaN(n)||n<0||n>60){toast('배송 일수를 0~60 사이 숫자로 적어주세요');inp.focus();return;}apply(n);};
+        ed.querySelector('[data-ok]').onclick=ok;
+        inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();ok();}};
+        r.appendChild(ed);
+      };
+      r.querySelector('.chk').onchange=e=>{
+        const now=new Date().toISOString();
+        if(stage==='todo')save(it,{done:true,done_at:now,arrived:false,arrived_at:null},`"${it.name}" 주문 완료로 옮겼어요`,e.target);
+        else if(stage==='wait')save(it,{arrived:true,arrived_at:now},`"${it.name}" 배송·정리 완료`,e.target);
+        else if(!e.target.checked)save(it,{arrived:false,arrived_at:null},`"${it.name}" 배송 대기로 되돌렸어요`,e.target);
+      };
+      const back=r.querySelector('[data-back]');
+      if(back)back.onclick=()=>save(it,{done:false,done_at:null,arrived:false,arrived_at:null},`"${it.name}" 주문 필요로 되돌렸어요`);
+      const del=r.querySelector('[data-del]');
+      del.onclick=async()=>{
+        if(del.dataset.sure!=='1'){del.dataset.sure='1';del.textContent='정말 삭제';del.style.color='var(--warn)';setTimeout(()=>{del.dataset.sure='';del.textContent='삭제';del.style.color='';},3000);return;}
+        const {error}=await sb.from('cafe_items').delete().eq('id',it.id);
+        if(error)toast('삭제하지 못했어요. 다시 시도해 주세요.');else load();
+      };
+      box.appendChild(r);
+    });
+  }
+  async function save(it,patch,msg,box){
+    const {error}=await sb.from('cafe_items').update(patch).eq('id',it.id);
+    if(error){if(box)box.checked=!box.checked;toast('저장하지 못했어요. 연결을 확인해 주세요.');}
+    else{toast(msg);load();}
+  }
+
+  document.querySelectorAll('#lead .chip').forEach(b=>b.onclick=()=>{
+    lead=b.dataset.d;
+    document.querySelectorAll('#lead .chip').forEach(c=>c.setAttribute('aria-pressed',c===b));
+    $('customBox').hidden=lead!=='custom';
+    if(lead==='custom')$('f-days').focus();
+  });
+  $('openAdd').onclick=()=>{$('openAdd').hidden=true;$('addForm').hidden=false;$('f-name').focus();};
+  $('closeAdd').onclick=()=>{$('addForm').hidden=true;$('openAdd').hidden=false;};
+  $('addForm').addEventListener('submit',async e=>{
+    e.preventDefault();
+    if(!sb){toast('아직 연결되지 않았어요');return;}
+    const name=$('f-name').value.trim();if(!name)return;
+    const row={part,name,memo:$('f-memo').value.trim()};
+    if(lead==='custom'){
+      const n=parseInt($('f-days').value,10);
+      if(isNaN(n)||n<0||n>60){toast('배송 일수를 0~60 사이 숫자로 적어주세요');$('f-days').focus();return;}
+      row.lead_days=n;
+    }else{row.lead_days=+lead;}
+    $('addBtn').disabled=true;
+    const {error}=await sb.from('cafe_items').insert(row);
+    $('addBtn').disabled=false;
+    if(error){toast('추가하지 못했어요. 다시 시도해 주세요.');return;}
+    $('f-name').value='';$('f-memo').value='';$('f-name').focus();
+    toast(`"${name}" 추가했어요`);load();
+  });
+
+  $('clearBtn').onclick=()=>$('clearConfirm').hidden=false;
+  $('clearNo').onclick=()=>$('clearConfirm').hidden=true;
+  $('clearYes').onclick=async()=>{
+    $('clearConfirm').hidden=true;
+    const {error}=await sb.from('cafe_items').delete().eq('part',part).eq('done',true).eq('arrived',true);
+    if(error)toast('지우지 못했어요. 다시 시도해 주세요.');else{toast('배송·정리 완료 목록을 비웠어요');load();}
+  };
+
+  let loading=false;
+  async function load(){
+    if(!sb||loading)return;loading=true;
+    const {data,error}=await sb.from('cafe_items').select('*').order('created_at');
+    loading=false;
+    if(error){if(!loaded)$('status').textContent='목록을 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.';return;}
+    items=data.map(map);loaded=true;render();
+  }
+
+  setPart(part);
+  if(!window.supabase){$('status').textContent='앱을 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.';return;}
+  sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false}});
+  load();
+  sb.channel('cafe_items').on('postgres_changes',{event:'*',schema:'public',table:'cafe_items'},()=>load()).subscribe();
+  setInterval(()=>{if(!document.hidden)load();},20000);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)load();});
+})();
+</script>
+</body>
+</html>
