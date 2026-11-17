@@ -106,11 +106,44 @@ section h2 .sp{flex:1}
 .row.leaving-up{animation:leaveUp .34s ease-in forwards;pointer-events:none}
 .row.leaving .chk,.row.leaving-up .chk{animation:pop .25s ease-out}
 .row.arrive{animation:arrive .7s ease-out}
+/* 마우스를 올리거나 고른 것을 색으로 표시 */
+.row,.tab,.btn,.chip,.link,.chk{transition:background-color .15s,color .15s,border-color .15s,box-shadow .15s,filter .15s}
+.row:focus-within,.row.editing{background:color-mix(in srgb,var(--accent) 16%,var(--surface));box-shadow:inset 4px 0 0 var(--accent)}
+.row:active{background:color-mix(in srgb,var(--accent) 16%,var(--surface))}
+.chip:active,.btn:active,.tab:active{filter:brightness(.92)}
+.addbox input:focus{border-color:var(--accent);background:var(--surface);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+@media (hover:hover){
+  .row:hover{background:color-mix(in srgb,var(--accent) 10%,var(--surface));box-shadow:inset 4px 0 0 color-mix(in srgb,var(--accent) 45%,transparent)}
+  .row:focus-within:hover,.row.editing:hover{box-shadow:inset 4px 0 0 var(--accent)}
+  .row:hover .name{color:var(--accent)}
+  .arrived.row:hover .name{color:var(--muted)}
+  .tab:not([aria-selected="true"]):hover{color:var(--accent);background:var(--surface)}
+  .btn:hover{border-color:var(--accent);color:var(--accent)}
+  .btn.primary:hover{color:var(--surface);filter:brightness(1.1)}
+  .btn.danger:hover{background:var(--warn);color:var(--surface);border-color:var(--warn)}
+  .chip:not([aria-pressed="true"]):hover{border-color:var(--accent);color:var(--accent)}
+  .link:hover{color:var(--accent)}
+  .link[data-del]:hover{color:var(--warn)}
+  .chk:hover{filter:brightness(1.15);box-shadow:0 0 0 4px var(--accent-soft);border-radius:4px}
+}
 @keyframes leave{to{opacity:0;transform:translateY(18px)}}
 @keyframes leaveUp{to{opacity:0;transform:translateY(-18px)}}
 @keyframes pop{50%{transform:scale(1.3)}}
 @keyframes arrive{0%{opacity:0;transform:translateY(-12px);background:var(--accent-soft)}45%{opacity:1;transform:none;background:var(--accent-soft)}100%{background:transparent}}
 @media (prefers-reduced-motion:reduce){.row.leaving,.row.leaving-up,.row.arrive,.row.leaving .chk,.row.leaving-up .chk{animation:none}}
+.link.clear{font-size:13px;font-family:var(--f-body)}
+.row.tappable{cursor:pointer}
+.row.tappable .editor{cursor:default}
+.btn.danger-fill{background:var(--warn);border-color:var(--warn);color:var(--surface);font-weight:700}
+.modal{position:fixed;inset:0;z-index:40;background:rgba(43,33,27,.45);display:grid;place-items:center;padding:16px}
+.dialog{width:min(360px,100%);background:var(--surface);border-radius:16px;padding:22px 20px 16px;box-shadow:0 12px 40px rgba(0,0,0,.25);animation:pop-in .18s ease-out}
+.dialog .mt{margin:0;font-family:var(--f-head);font-size:clamp(15px,4.4vw,18px);line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dialog .mb{margin:8px 0 18px;font-size:clamp(12px,3.6vw,14px);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dialog .ma{display:flex;gap:8px}
+.dialog .ma .btn{flex:1;padding:12px}
+@keyframes pop-in{from{opacity:0;transform:scale(.96)}}
+@media (prefers-reduced-motion:reduce){.dialog{animation:none}}
+@media (hover:hover){.btn.danger-fill:hover{filter:brightness(1.1);color:var(--surface);border-color:var(--warn)}.link.clear:hover{color:var(--warn)}}
 .editor{grid-column:1/-1;display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
 .editor .chip{padding:6px 14px}
 .editor input{font:inherit;width:64px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)}
@@ -169,25 +202,31 @@ section h2 .sp{flex:1}
     </div>
 
     <section>
-      <h2><span class="step">1</span>주문 필요 <span class="cnt" id="todoCnt"></span></h2>
+      <h2><span class="step">1</span>주문 필요 <span class="cnt" id="todoCnt"></span><span class="sp"></span><button class="link clear" type="button" data-clear="todo" hidden>전체 삭제</button></h2>
       <p class="hint">주문했으면 체크하세요.</p>
       <div class="list" id="todo"><div class="empty" id="status">목록을 불러오는 중…</div></div>
     </section>
 
     <section>
-      <h2><span class="step">2</span>주문 완료, 배송 대기 <span class="cnt" id="waitCnt"></span></h2>
+      <h2><span class="step">2</span>주문 완료, 배송 대기 <span class="cnt" id="waitCnt"></span><span class="sp"></span><button class="link clear" type="button" data-clear="wait" hidden>전체 삭제</button></h2>
       <p class="hint">물건이 와서 정리까지 끝났으면 체크하세요.</p>
       <div class="list" id="wait"><div class="empty">주문한 품목이 여기로 옮겨집니다.</div></div>
     </section>
 
     <section>
-      <h2><span class="step">3</span>배송·정리 완료 <span class="cnt" id="doneCnt"></span><span class="sp"></span><button class="link" id="clearBtn" hidden>완료 목록 비우기</button></h2>
+      <h2><span class="step">3</span>배송·정리 완료 <span class="cnt" id="doneCnt"></span><span class="sp"></span><button class="link clear" type="button" data-clear="done" hidden>전체 삭제</button></h2>
       <p class="hint">체크를 풀면 배송 대기로 되돌아갑니다.</p>
-      <div class="confirm" id="clearConfirm" hidden><span>이 파트의 배송·정리 완료 목록을 모두 지울까요?</span><button class="btn danger" id="clearYes">지우기</button><button class="btn" id="clearNo">취소</button></div>
       <div class="list" id="done"><div class="empty">정리까지 끝난 품목이 여기에 남습니다.</div></div>
     </section>
   </div>
 </main>
+<div class="modal" id="modal" hidden>
+  <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="mTitle" aria-describedby="mBody">
+    <p class="mt" id="mTitle"></p>
+    <p class="mb" id="mBody"></p>
+    <div class="ma"><button class="btn" type="button" id="mNo">취소</button><button class="btn danger-fill" type="button" id="mYes">삭제</button></div>
+  </div>
+</div>
 <div class="toast" id="toast" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -213,12 +252,12 @@ section h2 .sp{flex:1}
     part=p;try{localStorage.setItem('part',p)}catch(e){}
     document.body.classList.toggle('cafe',p==='cafe');
     document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.part===p));
-    $('clearConfirm').hidden=true;
     render();
   }
   document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>setPart(b.dataset.part));
 
   function render(){
+    if(editing){const a=document.activeElement;editing.focus=!!(a&&a.closest&&a.closest('.editor'));}
     ['salad','cafe'].forEach(p=>{const n=items.filter(i=>i.part===p&&!i.done).length;$('n-'+p).textContent=n||'';});
     if(!loaded)return;
     const mine=items.filter(i=>i.part===part);
@@ -229,7 +268,7 @@ section h2 .sp{flex:1}
     $('todoCnt').textContent=todo.length?todo.length+'개':'';
     $('waitCnt').textContent=wait.length?wait.length+'개':'';
     $('doneCnt').textContent=done.length?done.length+'개':'';
-    $('clearBtn').hidden=!done.length;
+    document.querySelectorAll('[data-clear]').forEach(b=>{b.hidden=!{todo,wait,done}[b.dataset.clear].length;});
     fill($('todo'),todo,'todo','주문할 품목이 없어요. 위의 "품목 추가"를 눌러 넣어주세요.');
     fill($('wait'),wait,'wait','주문한 품목이 여기로 옮겨집니다.');
     fill($('done'),done,'done','정리까지 끝난 품목이 여기에 남습니다.');
@@ -290,21 +329,14 @@ section h2 .sp{flex:1}
         <div class="acts2">${stage!=='done'?'<button class="link" type="button" data-lead>배송기간 수정</button>':''}${stage==='wait'?'<button class="link" type="button" data-back>주문 취소</button>':''}<button class="link" type="button" data-del>삭제</button></div>`;
       const le=r.querySelector('[data-lead]');
       if(le)le.onclick=()=>{
-        const old=r.querySelector('.editor');if(old){old.remove();return;}
-        const ed=document.createElement('div');ed.className='editor';
-        ed.innerHTML='<span>배송 기간</span>'+[1,2,3].map(n=>`<button type="button" class="chip" aria-pressed="${it.leadDays===n}" data-n="${n}">${n}일</button>`).join('')
-          +`<input type="number" min="0" max="60" inputmode="numeric" placeholder="직접" aria-label="배송 일수 직접 입력" value="${hasLead(it)&&![1,2,3].includes(it.leadDays)?it.leadDays:''}"><span>일</span><button type="button" class="btn" data-ok>확인</button><button type="button" class="chip" aria-pressed="${!hasLead(it)}" data-n="">모름</button>`;
-        const apply=n=>{
-          if(n===(hasLead(it)?it.leadDays:null)){ed.remove();return;}
-          save(it,{lead_days:n},n===null?`"${it.name}" 배송 기간을 모름으로 바꿨어요`:`"${it.name}" 배송 기간을 ${n}일로 바꿨어요`);
-        };
-        ed.querySelectorAll('.chip').forEach(c=>c.onclick=()=>apply(c.dataset.n===''?null:+c.dataset.n));
-        const inp=ed.querySelector('input');
-        const ok=()=>{const n=parseInt(inp.value,10);if(isNaN(n)||n<0||n>60){toast('배송 일수를 0~60 사이 숫자로 적어주세요');inp.focus();return;}apply(n);};
-        ed.querySelector('[data-ok]').onclick=ok;
-        inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();ok();}};
-        r.appendChild(ed);
+        const old=r.querySelector('.editor');if(old){old.remove();r.classList.remove('editing');editing=null;return;}
+        editing={id:it.id,val:'',focus:false};openEditor(r,it);
       };
+      if(le&&editing&&editing.id===it.id)openEditor(r,it);
+      if(le){
+        r.classList.add('tappable');
+        r.onclick=e=>{if(e.target.closest('button,input,a,label,.editor'))return;le.click();};
+      }
       r.querySelector('.chk').onchange=e=>{
         const now=new Date().toISOString();
         if(stage==='todo')save(it,{done:true,done_at:now,arrived:false,arrived_at:null},`"${it.name}" 주문 완료로 옮겼어요`,e.target,{row:r,to:'wait'});
@@ -315,12 +347,33 @@ section h2 .sp{flex:1}
       if(back)back.onclick=()=>save(it,{done:false,done_at:null,arrived:false,arrived_at:null},`"${it.name}" 주문 필요로 되돌렸어요`,null,{row:r,to:'todo',up:true});
       const del=r.querySelector('[data-del]');
       del.onclick=async()=>{
-        if(del.dataset.sure!=='1'){del.dataset.sure='1';del.textContent='정말 삭제';del.style.color='var(--warn)';setTimeout(()=>{del.dataset.sure='';del.textContent='삭제';del.style.color='';},3000);return;}
+        if(!await ask(`${it.name} 삭제할까요?`,'삭제하면 되돌릴 수 없어요.','삭제'))return;
         const {error}=await sb.from('cafe_items').delete().eq('id',it.id);
         if(error)toast('삭제하지 못했어요. 다시 시도해 주세요.');else load();
       };
       box.appendChild(r);
     });
+  }
+  let editing=null;
+  function openEditor(r,it){
+    const ed=document.createElement('div');ed.className='editor';
+    ed.innerHTML='<span>배송 기간</span>'+[1,2,3].map(n=>`<button type="button" class="chip" aria-pressed="${it.leadDays===n}" data-n="${n}">${n}일</button>`).join('')
+      +`<input type="number" min="0" max="60" inputmode="numeric" placeholder="직접" aria-label="배송 일수 직접 입력" value="${hasLead(it)&&![1,2,3].includes(it.leadDays)?it.leadDays:''}"><span>일</span><button type="button" class="btn" data-ok>확인</button><button type="button" class="chip" aria-pressed="${!hasLead(it)}" data-n="">모름</button>`;
+    const close=()=>{ed.remove();r.classList.remove('editing');editing=null;};
+    const apply=n=>{
+      if(n===(hasLead(it)?it.leadDays:null)){close();return;}
+      editing=null;
+      save(it,{lead_days:n},n===null?`"${it.name}" 배송 기간을 모름으로 바꿨어요`:`"${it.name}" 배송 기간을 ${n}일로 바꿨어요`);
+    };
+    ed.querySelectorAll('.chip').forEach(c=>c.onclick=()=>apply(c.dataset.n===''?null:+c.dataset.n));
+    const inp=ed.querySelector('input');
+    if(editing&&editing.val)inp.value=editing.val;
+    inp.oninput=()=>{if(editing)editing.val=inp.value;};
+    const ok=()=>{const n=parseInt(inp.value,10);if(isNaN(n)||n<0||n>60){toast('배송 일수를 0~60 사이 숫자로 적어주세요');inp.focus();return;}apply(n);};
+    ed.querySelector('[data-ok]').onclick=ok;
+    inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();ok();}};
+    r.appendChild(ed);r.classList.add('editing');
+    if(editing&&editing.focus)setTimeout(()=>inp.focus(),0);
   }
   const REDUCE=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
   let moved=null;const arriving={};
@@ -368,13 +421,37 @@ section h2 .sp{flex:1}
     toast(`"${name}" 추가했어요`);load();
   });
 
-  $('clearBtn').onclick=()=>$('clearConfirm').hidden=false;
-  $('clearNo').onclick=()=>$('clearConfirm').hidden=true;
-  $('clearYes').onclick=async()=>{
-    $('clearConfirm').hidden=true;
-    const {error}=await sb.from('cafe_items').delete().eq('part',part).eq('done',true).eq('arrived',true);
-    if(error)toast('지우지 못했어요. 다시 시도해 주세요.');else{toast('배송·정리 완료 목록을 비웠어요');load();}
-  };
+  const STAGE_NAME={todo:'주문 필요',wait:'배송 대기',done:'정리 완료'};
+  const inStage=(i,st)=>st==='todo'?!i.done:st==='wait'?(i.done&&!i.arrived):(i.done&&i.arrived);
+  document.querySelectorAll('[data-clear]').forEach(b=>b.onclick=async()=>{
+    const st=b.dataset.clear, partName=part==='salad'?'샐러드':'카페';
+    const ids=items.filter(i=>i.part===part&&inStage(i,st)).map(i=>i.id);
+    if(!ids.length)return;
+    if(!await ask(`${STAGE_NAME[st]} ${ids.length}개 모두 삭제할까요?`,`${partName} 파트의 이 칸만 지워져요.`,`${ids.length}개 삭제`))return;
+    const {error}=await sb.from('cafe_items').delete().in('id',ids);
+    if(error)toast('삭제하지 못했어요. 다시 시도해 주세요.');else{toast(`${ids.length}개를 삭제했어요`);load();}
+  });
+
+  function ask(title,body,yes){
+    return new Promise(res=>{
+      const m=$('modal'),prev=document.activeElement;
+      $('mTitle').textContent=title;$('mBody').textContent=body;$('mYes').textContent=yes;
+      m.hidden=false;$('mNo').focus();
+      const key=e=>{
+        if(e.key==='Escape')done(false);
+        if(e.key==='Tab'){e.preventDefault();(document.activeElement===$('mNo')?$('mYes'):$('mNo')).focus();}
+      };
+      const done=v=>{
+        m.hidden=true;$('mYes').onclick=$('mNo').onclick=m.onclick=null;
+        document.removeEventListener('keydown',key);
+        if(prev&&prev.focus&&document.contains(prev))prev.focus();
+        res(v);
+      };
+      $('mYes').onclick=()=>done(true);$('mNo').onclick=()=>done(false);
+      m.onclick=e=>{if(e.target===m)done(false);};
+      document.addEventListener('keydown',key);
+    });
+  }
 
   const splashStart=Date.now();let splashGone=false;
   function hideSplash(){
@@ -393,7 +470,17 @@ section h2 .sp{flex:1}
   }
 
   setPart(part);
-  {const d=new Date();$('today').textContent=`${d.getMonth()+1}월 ${d.getDate()}일 ${'일월화수목금토'[d.getDay()]}요일 발주목록`;}
+  let todayKey='';
+  function updateToday(){
+    const d=new Date(), k=d.toDateString();
+    if(k===todayKey)return;
+    const first=!todayKey;todayKey=k;
+    $('today').textContent=`${d.getMonth()+1}월 ${d.getDate()}일 ${'일월화수목금토'[d.getDay()]}요일 발주목록`;
+    if(!first)render();
+  }
+  updateToday();
+  setInterval(updateToday,60000);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)updateToday();});
   if(!window.supabase){hideSplash();$('status').textContent='앱을 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.';return;}
   sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false}});
   load();
